@@ -291,8 +291,11 @@ migrated:
 - special_route:
   - '/help'
   - '/find-local-council'
+# Whitehall
+- guidance
 
-indexable: []
+indexable:
+  - guidance
 
 non_indexable:
 - calculator
@@ -371,7 +374,6 @@ non_indexable:
 - form
 - government_response: # indexable when published by Content Publisher
     publishing_app: whitehall
-- guidance
 - html_publication
 - impact_assessment
 - imported

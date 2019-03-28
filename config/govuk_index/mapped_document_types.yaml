@@ -16,6 +16,7 @@ external_content: edition # Search Admin
 finder: edition # Specialist Publisher
 government_response: edition
 guide: edition
+guidance: edition
 help_page: edition
 hmrc_manual: hmrc_manual
 hmrc_manual_section: hmrc_manual_section
