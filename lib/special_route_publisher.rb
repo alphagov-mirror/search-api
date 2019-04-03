@@ -105,6 +105,14 @@ class SpecialRoutePublisher
         title: "UK nationals living in the EU",
         description: "Q&A frontend for the country pages affected by EU Exit",
         type: "exact",
+      },
+      {
+        rendering_app: "finder-frontend",
+        base_path: "/search/all",
+        content_id: "dd395436-9b40-41f3-8157-740a453ac972",
+        title: "Search",
+        description: "Find content from government",
+        type: "exact",
       }
     ]
   end
