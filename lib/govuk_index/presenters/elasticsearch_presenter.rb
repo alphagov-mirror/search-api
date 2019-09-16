@@ -84,6 +84,7 @@ module GovukIndex
         popularity:                          common_fields.popularity,
         primary_publishing_organisation:     expanded_links.primary_publishing_organisation,
         public_timestamp:                    common_fields.public_timestamp,
+        updated_at:                          common_fields.updated_at,
         publishing_app:                      common_fields.publishing_app,
         railway_type:                        specialist.railway_type,
         regions:                             specialist.regions,
