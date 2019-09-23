@@ -10,7 +10,7 @@ class SchemaMigrator
 
   def reindex
     index_group.current.with_lock do
-      response = Services.elasticsearch(cluster: cluster, timeout: 60).reindex(
+      response = Services.elasticsearch(hosts: 'http://localhost:9200?slices=auto', cluster: cluster, timeout: 60).reindex(
         wait_for_completion: false,
         body: {
           source: {
