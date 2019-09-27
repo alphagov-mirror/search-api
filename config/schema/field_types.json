@@ -24,7 +24,7 @@
     "es_config": {
       "type": "keyword",
       "index": true,
-      "copy_to": ["spelling_text", "all_searchable_text"]
+      "copy_to": ["spelling_text", "all_searchable_text", "all_searchable_identifiers"]
     }
   },
 
@@ -35,7 +35,7 @@
     "es_config": {
       "type": "keyword",
       "index": true,
-      "copy_to": ["spelling_text", "all_searchable_text"]
+      "copy_to": ["spelling_text", "all_searchable_text", "all_searchable_identifiers"]
     }
   },
 

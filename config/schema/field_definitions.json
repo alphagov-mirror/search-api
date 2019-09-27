@@ -4,6 +4,11 @@
     "type": "all_searchable_text_type"
   },
 
+  "all_searchable_identifiers": {
+    "description": "Special field which searchable identifiers are copied into.",
+    "type": "all_searchable_text_type"
+  },
+
   "format": {
     "description": "This field is less specific than content_store_document_type but is mandatory for every document. May be deprecated in future.",
     "type": "identifier"
