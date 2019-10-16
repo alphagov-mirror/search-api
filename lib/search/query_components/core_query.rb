@@ -90,15 +90,31 @@ module QueryComponents
     end
 
     def unquoted_phrase_query(query = search_term)
-      should_coord_query([
-        match_all_terms(%w(title), query, MATCH_ALL_TITLE_BOOST),
-        match_all_terms(%w(acronym), query, MATCH_ALL_ACRONYM_BOOST),
-        match_all_terms(%w(description), query, MATCH_ALL_DESCRIPTION_BOOST),
-        match_all_terms(%w(indexable_content), query, MATCH_ALL_INDEXABLE_CONTENT_BOOST),
-        match_all_terms(%w(title acronym description indexable_content), query, MATCH_ALL_MULTI_BOOST),
-        match_any_terms(%w(title acronym description indexable_content), query, MATCH_ANY_MULTI_BOOST),
-        minimum_should_match("all_searchable_text", query, MATCH_MINIMUM_BOOST),
-      ])
+      if search_params.ab_tests.fetch(:use_old_query, "N") == "Y"
+        {
+          bool: {
+            should: [
+              match_phrase("title", query),
+              match_phrase("acronym", query),
+              match_phrase("description", query),
+              match_phrase("indexable_content", query),
+              match_all_terms(%w(title acronym description indexable_content), query),
+              match_any_terms(%w(title acronym description indexable_content), query),
+              minimum_should_match("all_searchable_text", query),
+            ],
+          },
+        }
+      else
+        should_coord_query([
+          match_all_terms(%w(title), query, MATCH_ALL_TITLE_BOOST),
+          match_all_terms(%w(acronym), query, MATCH_ALL_ACRONYM_BOOST),
+          match_all_terms(%w(description), query, MATCH_ALL_DESCRIPTION_BOOST),
+          match_all_terms(%w(indexable_content), query, MATCH_ALL_INDEXABLE_CONTENT_BOOST),
+          match_all_terms(%w(title acronym description indexable_content), query, MATCH_ALL_MULTI_BOOST),
+          match_any_terms(%w(title acronym description indexable_content), query, MATCH_ANY_MULTI_BOOST),
+          minimum_should_match("all_searchable_text", query, MATCH_MINIMUM_BOOST),
+        ])
+      end
     end
 
     def minimum_should_match(field_name, query, boost = 1.0)
