@@ -1,3 +1,4 @@
+require "aws-sdk-s3"
 require "rummager"
 require "pp"
 require "rainbow"
@@ -56,7 +57,8 @@ namespace :debug do
 
   desc "Check how well the search query performs for a set of relevancy judgements"
   task :ranking_evaluation, [:datafile, :ab_tests] do |_, args|
-    evaluator = Debug::RankEval.new(args.datafile, args.ab_tests)
+    csv = args.datafile || relevancy_judgements_from_s3
+    evaluator = Debug::RankEval.new(csv, args.ab_tests)
     results = evaluator.evaluate
 
     maxlen = results[:query_scores].map { |query, _| query.length }.max
@@ -65,5 +67,13 @@ namespace :debug do
     end
     puts "---"
     puts "overall score: #{results[:score]}"
+  end
+
+  def relevancy_judgements_from_s3
+    bucket_name = "govuk-integration-search-relevancy"
+    filename = "judgements.csv"
+
+    o = Aws::S3::Object.new(bucket_name: bucket_name, key: filename)
+    CSV.parse(o.get.body.string, headers: true)
   end
 end
