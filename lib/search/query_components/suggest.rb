@@ -8,7 +8,7 @@ module QueryComponents
         spelling_suggestions: {
           phrase: {
             field: SPELLING_FIELD,
-            size: 1,
+            size: 5,
             max_errors: 3,
             direct_generator: [{
               field: SPELLING_FIELD,
