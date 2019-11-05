@@ -47,7 +47,7 @@ module Search
   private
 
     def suggested_queries
-      SpellCheckPresenter.new(es_response).present
+      SpellCheckPresenter.new(@search_params, es_response).present
     end
 
     def presented_results

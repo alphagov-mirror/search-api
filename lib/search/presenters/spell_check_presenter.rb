@@ -1,9 +1,18 @@
 module Search
-  SpellCheckPresenter = Struct.new(:es_response) do
+  SpellCheckPresenter = Struct.new(:search_params, :es_response) do
     def present
       return [] unless any_suggestions?
 
-      [best_suggestion]
+      if search_params.use_best_suggestion?
+        [
+          best_suggestion(
+            es_response["suggest"]["spelling_suggestions"][0]["text"],
+            es_response["suggest"]["spelling_suggestions"][0]["options"],
+          )
+        ]
+      else
+        [es_response["suggest"]["spelling_suggestions"][0]["options"][0]["text"]]
+      end
     end
 
   private
@@ -20,10 +29,7 @@ module Search
     # The Elasticsearch score is influenced by the string distance
     # function used, but not enough for us to effectively get
     # distance-first sorting.
-    def best_suggestion
-      query = es_response["suggest"]["spelling_suggestions"][0]["text"]
-
-      options = es_response["suggest"]["spelling_suggestions"][0]["options"]
+    def best_suggestion(query, options)
       return options[0]["text"] if options.length == 1
 
       best_suggestion = nil

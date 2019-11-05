@@ -69,6 +69,10 @@ module Search
       ab_tests[:shingles] == "B"
     end
 
+    def use_best_suggestion?
+      ab_tests[:suggestions] == "B"
+    end
+
   private
 
     def determine_if_quoted_phrase
