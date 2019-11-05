@@ -39,7 +39,10 @@ module Search
         distance = string_distance(query, suggestion["text"])
         es_score = suggestion["score"]
 
-        next unless best_suggestion.nil? || distance < best_distance || distance == best_distance && es_score > best_es_score
+        next unless best_suggestion.nil? ||
+                    es_score >= 2 * best_es_score ||
+                    (distance < best_distance && best_es_score < 2 * es_score) ||
+                    (distance == best_distance && es_score > best_es_score)
 
         best_suggestion = suggestion["text"]
         best_distance = distance
