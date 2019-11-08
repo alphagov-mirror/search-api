@@ -3,6 +3,7 @@ require "rummager"
 require "analytics/popular_queries"
 require "analytics/total_query_ctr"
 require "learn_to_rank/ctr_to_judgements"
+require "relevancy/load_judgements"
 
 namespace :learn_to_rank do
   desc "Export a CSV of relevancy judgements generated from CTR on popular queries"
@@ -16,7 +17,8 @@ namespace :learn_to_rank do
   desc "Export a CSV of SVM-formatted relevancy judgements for training a model"
   task :generate_training_dataset, [:judgements_filepath] do |_, args|
     csv = args.judgements_filepath
-    judgements = LearnToRank::EmbedFeatures.new(csv).augmented_judgements
+    judgements_data = Relevancy::LoadJudgements.from_csv(csv)
+    judgements = LearnToRank::EmbedFeatures.new(judgements_data).augmented_judgements
     svm = LearnToRank::JudgementsToSvm.new(judgements).svm_format.shuffle
     File.open("tmp/train.txt", "wb") do |train|
       File.open("tmp/validate.txt", "wb") do |validate|
