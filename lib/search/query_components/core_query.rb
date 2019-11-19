@@ -57,6 +57,10 @@ module QueryComponents
     MINIMUM_SHOULD_MATCH = "2<2 3<3 7<50%".freeze
 
     def mixed_quoted_unquoted_query
+      if search_params.ab_tests[:use_basic_query] == 'yes'
+        return { query_string: { query: search_term } }
+      end
+
       quoted = search_params.parsed_query[:quoted].map { |query| quoted_phrase_query(query) }
 
       unquoted_query = search_params.parsed_query[:unquoted]
