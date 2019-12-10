@@ -56,9 +56,9 @@ namespace :learn_to_rank do
       bucket_name = ENV["AWS_S3_RELEVANCY_BUCKET_NAME"]
       raise "Missing required AWS_S3_RELEVANCY_BUCKET_NAME" if bucket_name.blank?
 
-      raise "Please specify the model filename" if args.model_filename.blank?
+      model_files = Aws::S3::Bucket.new(bucket_name).objects.map(&:keys)
 
-      model_filename = args.model_filename
+      model_filename = args.model_filename || model_files.sort.last
 
       o = Aws::S3::Object.new(bucket_name: bucket_name, key: "ltr/#{model_filename}")
 
