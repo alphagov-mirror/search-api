@@ -49,11 +49,7 @@ namespace :learn_to_rank do
     models_dir = ENV["TENSORFLOW_MODELS_DIRECTORY"]
     raise "Please specify the Tensorflow models directory" if models_dir.blank?
 
-    prefix            = "ltr"
-    s3_objects        = Aws::S3::Bucket.new(bucket_name).objects(prefix: prefix)
-    model_files       = s3_objects.map { |object| object.key.delete("#{prefix}/") }
-    latest_model      = model_files.max_by(&:to_i)
-    model_filename    = args.model_filename || latest_model
+    model_filename    = args.model_filename || fetch_latest_model(bucket_name)
     model_version     = model_filename.to_i.to_s
     model_folder_path = File.join("/data/vhost", models_dir, "ltr", model_version)
 
@@ -152,5 +148,12 @@ namespace :learn_to_rank do
         csv << row.values
       end
     end
+  end
+
+  def fetch_latest_model(bucket_name)
+    prefix      = "ltr"
+    s3_objects  = Aws::S3::Bucket.new(bucket_name).objects(prefix: prefix)
+    model_files = s3_objects.map { |object| object.key.delete("#{prefix}/") }
+    model_files.max_by(&:to_i)
   end
 end
