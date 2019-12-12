@@ -43,40 +43,26 @@ namespace :learn_to_rank do
 
   desc "Pull learn to rank model from S3"
   task :pull_model, [:model_filename] do |_, args|
-    bucket_name = ENV["AWS_S3_RELEVANCY_BUCKET_NAME"]
-    raise "Missing required AWS_S3_RELEVANCY_BUCKET_NAME" if bucket_name.blank?
+    bucket = ENV["AWS_S3_RELEVANCY_BUCKET_NAME"]
+    raise "Missing required AWS_S3_RELEVANCY_BUCKET_NAME" if bucket.blank?
 
     models_dir = ENV["TENSORFLOW_MODELS_DIRECTORY"]
     raise "Please specify the Tensorflow models directory" if models_dir.blank?
 
-    model_filename    = args.model_filename || fetch_latest_model(bucket_name)
+    prefix            = "ltr"
+    model_filename    = args.model_filename || fetch_latest_model_filename(bucket, prefix)
     model_version     = model_filename.to_i.to_s
-    model_folder_path = File.join("/data/vhost", models_dir, "ltr", model_version)
+    models_dir = File.join("/data/vhost", models_dir, "ltr")
 
-    if Dir.exist?(model_folder_path)
+    if Dir.exist?("#{models_dir}/#{model_version}")
       puts "Model number #{model_version} already downloaded at #{model_folder_path}. Skipping pull from S3 ..."
       next # gracefully exit rake task with code 0
     end
 
-    begin
-      puts "Pulling model: #{model_filename} ..."
-
-      tmpdir        = Dir.mktmpdir
-      s3_object     = Aws::S3::Object.new(bucket_name: bucket_name, key: "#{prefix}/#{model_filename}")
-      download_path = "#{tmpdir}/#{model_filename}"
-
-      s3_object.get(response_target: download_path)
-
-      Zip::File.open(download_path) do |zip_file|
-        zip_file.each do |file|
-          file_path = File.join("/", models_dir, "ltr", file.name)
-          puts "Extracting archive to #{file_path} ..."
-          zip_file.extract(file, file_path) unless File.exist?(file_path)
-        end
-      end
-    ensure
-      FileUtils.remove_entry tmpdir
-    end
+    pull_model_from_s3(bucket: bucket,
+                       key: "#{prefix}/#{model_filename}",
+                       models_dir: models_dir,
+                      )
   end
 
   namespace :reranker do
@@ -150,10 +136,31 @@ namespace :learn_to_rank do
     end
   end
 
-  def fetch_latest_model(bucket_name)
-    prefix      = "ltr"
-    s3_objects  = Aws::S3::Bucket.new(bucket_name).objects(prefix: prefix)
+  def fetch_latest_model_filename(bucket, prefix)
+    s3_objects  = Aws::S3::Bucket.new(bucket).objects(prefix: prefix)
     model_files = s3_objects.map { |object| object.key.delete("#{prefix}/") }
     model_files.max_by(&:to_i)
+  end
+
+  def pull_model_from_s3(bucket:, key:, models_dir:)
+    tmpdir          = Dir.mktmpdir
+    response_target = "#{tmpdir}/latest_model"
+
+    begin
+      puts "Pulling model: #{key} ..."
+
+      s3_object = Aws::S3::Object.new(bucket: bucket, key: key)
+      s3_object.get(response_target: response_target)
+
+      Zip::File.open(response_target) do |zip_file|
+        zip_file.each do |source_file|
+          destination_path = File.join(models_dir, source_file.name)
+          puts "Extracting archive to #{destination_path} ..."
+          zip_file.extract(source_file, destination_path) unless File.exist?(destination_path)
+        end
+      end
+    ensure
+      FileUtils.remove_entry tmpdir
+    end
   end
 end
