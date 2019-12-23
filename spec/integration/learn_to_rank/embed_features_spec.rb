@@ -6,17 +6,17 @@ RSpec.describe LearnToRank::EmbedFeatures do
   end
   let(:judgements) do
     [
-      { query: "dog", id: "/dog", rank: 3 },
-      { query: "dog", id: "/pet", rank: 2 },
-      { query: "dog", id: "/whiskers", rank: 1 },
-      { query: "dog", id: "/kitten", rank: 0 },
-      { query: "dog", id: "/cat", rank: 0 },
+      { query: "dog", link: "/dog", rank: 3 },
+      { query: "dog", link: "/pet", rank: 2 },
+      { query: "dog", link: "/whiskers", rank: 1 },
+      { query: "dog", link: "/kitten", rank: 0 },
+      { query: "dog", link: "/cat", rank: 0 },
 
-      { query: "cat", id: "/cat", rank: 3 },
-      { query: "cat", id: "/kitten", rank: 3 },
-      { query: "cat", id: "/pet", rank: 2 },
-      { query: "cat", id: "/whiskers", rank: 2 },
-      { query: "cat", id: "/dog", rank: 0 },
+      { query: "cat", link: "/cat", rank: 3 },
+      { query: "cat", link: "/kitten", rank: 3 },
+      { query: "cat", link: "/pet", rank: 2 },
+      { query: "cat", link: "/whiskers", rank: 2 },
+      { query: "cat", link: "/dog", rank: 0 },
     ]
   end
 
@@ -53,7 +53,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
         expect(augmented_judgements).to eq([
           {
             query: "dog",
-            id: "/dog",
+            link: "/dog",
             rank: 3,
             features: {
               "1" => 8.0,
@@ -76,7 +76,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
             query: "dog",
-            id: "/pet",
+            link: "/pet",
             rank: 2,
             features: {
               "1" => 8.0,
@@ -99,7 +99,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
             query: "dog",
-            id: "/whiskers",
+            link: "/whiskers",
             rank: 1,
             features: {
               "1" => 8.0,
@@ -121,7 +121,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
             },
           },
           { query: "dog",
-           id: "/kitten",
+           link: "/kitten",
            rank: 0,
            features: {
              "1" => 8.0,
@@ -143,7 +143,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
            } },
           {
             query: "dog",
-            id: "/cat",
+            link: "/cat",
             rank: 0,
             features: {
               "1" => 8.0,
@@ -166,7 +166,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
             query: "cat",
-            id: "/cat",
+            link: "/cat",
             rank: 3,
             features: {
               "1" => 8.0,
@@ -189,7 +189,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
             },
           {
             query: "cat",
-            id: "/kitten",
+            link: "/kitten",
             rank: 3,
             features: {
               "1" => 8.0,
@@ -212,7 +212,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
             query: "cat",
-            id: "/pet",
+            link: "/pet",
             rank: 2,
             features: {
               "1" => 8.0,
@@ -235,7 +235,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
            query: "cat",
-           id: "/whiskers",
+           link: "/whiskers",
            rank: 2,
            features: {
              "1" => 8.0,
@@ -258,7 +258,7 @@ RSpec.describe LearnToRank::EmbedFeatures do
           },
           {
             query: "cat",
-            id: "/dog",
+            link: "/dog",
             rank: 0,
             features: {
               "1" => 8.0,
