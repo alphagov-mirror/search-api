@@ -113,6 +113,7 @@ require "learn_to_rank/data_pipeline/worker"
 require "learn_to_rank/explain_scores"
 require "learn_to_rank/feature_sets"
 require "learn_to_rank/features"
+require "learn_to_rank/ranker_api_helper"
 require "learn_to_rank/ranker"
 require "learn_to_rank/reranker"
 
