@@ -36,7 +36,7 @@ if len(model_keys) != 1:
 model_key = model_keys[0]["Key"]
 
 # deploy the model by creating a new endpoint config and updating the existing endpoint
-model = sagemaker.tensorflow.serving.Model(f"s3://{s3_bucket}/{model_key}", role,)
+model = sagemaker.tensorflow.serving.Model(f"s3://{s3_bucket}/model/initial", role,)
 
 model.deploy(
     current_endpoint_config["ProductionVariants"][0]["InitialInstanceCount"],
