@@ -1,10 +1,9 @@
 module Search
   class AggregateResultPresenter
-    attr_reader :aggregates, :aggregate_examples, :search_params, :registries
+    attr_reader :aggregates, :search_params, :registries
 
-    def initialize(aggregates, aggregate_examples, search_params, registries)
+    def initialize(aggregates, search_params, registries)
       @aggregates = aggregates
-      @aggregate_examples = aggregate_examples
       @search_params = search_params
       @registries = registries
     end
@@ -79,11 +78,6 @@ module Search
         result = { "slug" => result }
       end
 
-      field_examples = aggregate_examples[field]
-
-      unless field_examples.nil?
-        result["example_info"] = field_examples.fetch(slug, [])
-      end
       result
     end
 

@@ -97,7 +97,30 @@ module Search
 
     def process_es_response(search_params, builder, payload, es_response, reranked)
       example_fetcher = AggregateExampleFetcher.new(index, es_response, search_params, builder)
-      aggregate_examples = example_fetcher.fetch
+
+      presented_aggregates = AggregateResultPresenter.new(
+        es_response["aggregations"],
+        search_params,
+        registries,
+      ).presented_aggregates
+
+      slugs_for_fields = presented_aggregates.each_with_object({}) do |(field, aggregate), acc|
+        current = acc[field] || []
+        new = aggregate[:options].map { |option| option[:value]["slug"] }.compact
+        acc[field] = (current + new).uniq
+        acc
+      end
+
+      examples = example_fetcher.fetch(slugs_for_fields)
+
+      presented_aggregates.each do |field, aggregate|
+        field_examples = examples[field]
+        unless field_examples.nil?
+          aggregate[:options].each do |option|
+            option[:value]["example_info"] = field_examples.fetch(option[:value]["slug"], [])
+          end
+        end
+      end
 
       # Augment the response with the suggest result from a separate query.
       if search_params.suggest_spelling?
@@ -112,7 +135,7 @@ module Search
         search_params: search_params,
         es_response: es_response,
         registries: registries,
-        aggregate_examples: aggregate_examples,
+        presented_aggregates: presented_aggregates,
         schema: index.schema,
         query_payload: payload,
         reranked: reranked,
