@@ -96,8 +96,29 @@ module Search
     end
 
     def process_es_response(search_params, builder, payload, es_response, reranked)
-      example_fetcher = AggregateExampleFetcher.new(index, es_response, search_params, builder)
+      # Augment the response with the suggest result from a separate query.
+      if search_params.suggest_spelling?
+        es_response["suggest"] = run_spell_checks(search_params)
+      end
 
+      if search_params.suggest_autocomplete?
+        es_response["autocomplete"] = run_autocomplete_query(search_params)
+      end
+
+      presented_aggregates = present_aggregates_with_examples(search_params, es_response, builder)
+
+      ResultSetPresenter.new(
+        search_params: search_params,
+        es_response: es_response,
+        registries: registries,
+        presented_aggregates: presented_aggregates,
+        schema: index.schema,
+        query_payload: payload,
+        reranked: reranked,
+      ).present
+    end
+
+    def present_aggregates_with_examples(search_params, es_response, builder)
       presented_aggregates = AggregateResultPresenter.new(
         es_response["aggregations"],
         search_params,
@@ -111,35 +132,11 @@ module Search
         acc
       end
 
+      example_fetcher = AggregateExampleFetcher.new(index, es_response, search_params, builder)
       examples = example_fetcher.fetch(slugs_for_fields)
+      AggregateResultPresenter.merge_examples(presented_aggregates, examples)
 
-      presented_aggregates.each do |field, aggregate|
-        field_examples = examples[field]
-        unless field_examples.nil?
-          aggregate[:options].each do |option|
-            option[:value]["example_info"] = field_examples.fetch(option[:value]["slug"], [])
-          end
-        end
-      end
-
-      # Augment the response with the suggest result from a separate query.
-      if search_params.suggest_spelling?
-        es_response["suggest"] = run_spell_checks(search_params)
-      end
-
-      if search_params.suggest_autocomplete?
-        es_response["autocomplete"] = run_autocomplete_query(search_params)
-      end
-
-      ResultSetPresenter.new(
-        search_params: search_params,
-        es_response: es_response,
-        registries: registries,
-        presented_aggregates: presented_aggregates,
-        schema: index.schema,
-        query_payload: payload,
-        reranked: reranked,
-      ).present
+      presented_aggregates
     end
 
     # Elasticsearch tries to find spelling suggestions for words that don't occur in

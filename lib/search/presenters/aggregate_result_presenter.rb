@@ -30,6 +30,25 @@ module Search
       result
     end
 
+    # This is a class method, called on the output of
+    # AggregateResultPresenter.new(...).presented_aggregates.  This is
+    # so the examples fetched (in ../query.rb) can be derived from the
+    # presented aggregates.  The alternative is conservatively
+    # fetching any example which could possibly be needed, and
+    # throwing away unnecessary ones after-the-fact.
+    #
+    # This method mutates the 'presented_aggregates' parameter.
+    def self.merge_examples(presented_aggregates, examples)
+      presented_aggregates.each do |field, aggregate|
+        field_examples = examples[field]
+        unless field_examples.nil?
+          aggregate[:options].each do |option|
+            option[:value]["example_info"] = field_examples.fetch(option[:value]["slug"], [])
+          end
+        end
+      end
+    end
+
   private
 
     # Get the aggregate options, sorted according to the "order" option.
