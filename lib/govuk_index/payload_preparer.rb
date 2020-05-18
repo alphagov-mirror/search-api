@@ -19,6 +19,7 @@ module GovukIndex
       details = Indexer::AttachmentsLookup.prepare_attachments(payload["details"])
 
       merge_details(payload, "attachments", details["attachments"])
+      merge_details(payload, "indexable_content", details["indexable_content"])
     end
 
     def prepare_parts(payload)
