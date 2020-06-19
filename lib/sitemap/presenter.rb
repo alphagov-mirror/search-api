@@ -7,6 +7,14 @@ class SitemapPresenter
     @logger = Logging.logger[self]
   end
 
+  def to_h
+    {
+      url: url,
+      last_updated: last_updated,
+      priority: priority,
+    }
+  end
+
   def url
     if document["link"].start_with?("http")
       document["link"]
